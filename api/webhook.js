@@ -15,10 +15,10 @@ module.exports = (req, res) => {
 
   if (req.method === 'POST') {
     console.log('🔥 WEBHOOK RECIBIDO');
-    console.log(JSON.stringify(req.body, null, 2));
+    console.log(req.body);
 
     return res.status(200).send('EVENT_RECEIVED');
   }
 
   return res.status(405).end();
-};10
+};
