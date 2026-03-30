@@ -4,11 +4,11 @@ module.exports = (req, res) => {
 
   const VERIFY_TOKEN = "ACR123";
 
-  // 👉 Verificación
-  if (req.method === 'GET') {
-    const mode = req.query['hub.mode'];
-    const token = req.query['hub.verify_token'];
-    const challenge = req.query['hub.challenge'];
+  // 👉 VERIFICACIÓN
+  if (req.method === "GET") {
+    const mode = req.query["hub.mode"];
+    const token = req.query["hub.verify_token"];
+    const challenge = req.query["hub.challenge"];
 
     if (mode && token === VERIFY_TOKEN) {
       return res.status(200).send(challenge);
@@ -17,53 +17,40 @@ module.exports = (req, res) => {
     }
   }
 
-  // 👉 Mensajes
-  if (req.method === 'POST') {
+  // 👉 MENSAJES
+  if (req.method === "POST") {
     try {
+
       console.log("MENSAJE RECIBIDO:");
       console.log(JSON.stringify(req.body, null, 2));
 
-      const phone_number_id = req.body.entry &&
-        req.body.entry[0] &&
-        req.body.entry[0].changes &&
-        req.body.entry[0].changes[0] &&
-        req.body.entry[0].changes[0].value &&
-        req.body.entry[0].changes[0].value.metadata &&
-        req.body.entry[0].changes[0].value.metadata.phone_number_id;
+      const entry = req.body.entry?.[0];
+      const change = entry?.changes?.[0];
+      const value = change?.value;
 
-      const from = req.body.entry &&
-        req.body.entry[0] &&
-        req.body.entry[0].changes &&
-        req.body.entry[0].changes[0] &&
-        req.body.entry[0].changes[0].value &&
-        req.body.entry[0].changes[0].value.messages &&
-        req.body.entry[0].changes[0].value.messages[0] &&
-        req.body.entry[0].changes[0].value.messages[0].from;
+      const phone_number_id = value?.metadata?.phone_number_id;
+      const from = value?.messages?.[0]?.from;
 
       if (from && phone_number_id) {
 
         const data = JSON.stringify({
           messaging_product: "whatsapp",
           to: from,
-          text: { body: "ACR ya quedó 🔥" }
+          text: { body: "ACR funcionando 🔥" }
         });
-
-        const path = "/v18.0/" + phone_number_id + "/messages";
-
-        console.log("RUTA:", path);
 
         const options = {
           hostname: "graph.facebook.com",
-          path: path,
+          path: "/v18.0/" + phone_number_id + "/messages",
           method: "POST",
           headers: {
             "Authorization": "Bearer " + process.env.WHATSAPP_TOKEN,
             "Content-Type": "application/json",
-            "Content-Length": data.length
+            "Content-Length": Buffer.byteLength(data)
           }
         };
 
-        const reqMeta = https.request(options, response => {
+        const reqMeta = https.request(options, (response) => {
           let body = "";
           response.on("data", chunk => body += chunk);
           response.on("end", () => {
@@ -71,7 +58,7 @@ module.exports = (req, res) => {
           });
         });
 
-        reqMeta.on("error", error => {
+        reqMeta.on("error", (error) => {
           console.error("ERROR META:", error);
         });
 
@@ -83,3 +70,9 @@ module.exports = (req, res) => {
 
     } catch (error) {
       console.error("ERROR GENERAL:", error);
+      return res.status(200).send("ok");
+    }
+  }
+
+  return res.status(200).send("ok");
+};
