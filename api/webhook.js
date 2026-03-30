@@ -4,7 +4,7 @@ module.exports = (req, res) => {
 
   const VERIFY_TOKEN = "ACR123";
 
-  // 👉 VERIFICACIÓN
+  // VERIFICACIÓN
   if (req.method === "GET") {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
@@ -17,7 +17,7 @@ module.exports = (req, res) => {
     }
   }
 
-  // 👉 MENSAJES
+  // MENSAJES
   if (req.method === "POST") {
     try {
 
