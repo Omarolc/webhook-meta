@@ -1,10 +1,8 @@
-const https = require("https");
-
-module.exports = (req, res) => {
+export default async function handler(req, res) {
 
   const VERIFY_TOKEN = "ACR123";
 
-  // VERIFICACIÓN
+  // 🔹 VERIFICACIÓN DE META (GET)
   if (req.method === "GET") {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
@@ -17,62 +15,45 @@ module.exports = (req, res) => {
     }
   }
 
-  // MENSAJES
+  // 🔹 RECEPCIÓN DE MENSAJES (POST)
   if (req.method === "POST") {
     try {
 
-      console.log("MENSAJE RECIBIDO:");
+      console.log("📩 MENSAJE RECIBIDO:");
       console.log(JSON.stringify(req.body, null, 2));
 
       const entry = req.body.entry?.[0];
-      const change = entry?.changes?.[0];
-      const value = change?.value;
+      const changes = entry?.changes?.[0];
+      const value = changes?.value;
 
       const phone_number_id = value?.metadata?.phone_number_id;
       const from = value?.messages?.[0]?.from;
 
       if (from && phone_number_id) {
 
-        const data = JSON.stringify({
-          messaging_product: "whatsapp",
-          to: from,
-          text: { body: "ACR funcionando 🔥" }
-        });
-
-        const options = {
-          hostname: "graph.facebook.com",
-          path: "/v18.0/" + phone_number_id + "/messages",
+        await fetch(https://graph.facebook.com/v18.0/${phone_number_id}/messages, {
           method: "POST",
           headers: {
-            "Authorization": "Bearer " + process.env.WHATSAPP_TOKEN,
-            "Content-Type": "application/json",
-            "Content-Length": Buffer.byteLength(data)
-          }
-        };
-
-        const reqMeta = https.request(options, (response) => {
-          let body = "";
-          response.on("data", chunk => body += chunk);
-          response.on("end", () => {
-            console.log("RESPUESTA META:", body);
-          });
+            "Authorization": Bearer ${process.env.WHATSAPP_TOKEN},
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            to: from,
+            text: { body: "ACR funcionando 🔥" }
+          })
         });
 
-        reqMeta.on("error", (error) => {
-          console.error("ERROR META:", error);
-        });
-
-        reqMeta.write(data);
-        reqMeta.end();
+        console.log("✅ RESPUESTA ENVIADA");
       }
 
       return res.status(200).send("ok");
 
     } catch (error) {
-      console.error("ERROR GENERAL:", error);
+      console.error("❌ ERROR GENERAL:", error);
       return res.status(200).send("ok");
     }
   }
 
   return res.status(200).send("ok");
-};
+}
