@@ -1,4 +1,4 @@
-module.exports = (req, res) => {
+export default function handler(req, res) {
   const VERIFY_TOKEN = 'ACR123';
 
   if (req.method === 'GET') {
@@ -15,10 +15,10 @@ module.exports = (req, res) => {
 
   if (req.method === 'POST') {
     console.log('🔥 WEBHOOK RECIBIDO');
-    console.log(req.body);
+    console.log(JSON.stringify(req.body, null, 2));
 
     return res.status(200).send('EVENT_RECEIVED');
   }
 
   return res.status(405).end();
-};
+}
