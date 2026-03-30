@@ -24,25 +24,33 @@ export default async function handler(req, res) {
       const from = req.body.entry?.[0]?.changes?.[0]?.value?.messages?.[0]?.from;
 
       if (from && phone_number_id) {
-        await fetch(https://graph.facebook.com/v18.0/${phone_number_id}/messages, {
-          method: "POST",
-          headers: {
-            "Authorization": Bearer ${process.env.WHATSAPP_TOKEN},
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            messaging_product: "whatsapp",
-            to: from,
-            text: { body: "Hola, soy ACR 🚀" }
-          })
-        });
+        try {
+          const response = await fetch(https://graph.facebook.com/v18.0/${phone_number_id}/messages, {
+            method: "POST",
+            headers: {
+              "Authorization": Bearer ${process.env.WHATSAPP_TOKEN},
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              messaging_product: "whatsapp",
+              to: from,
+              text: { body: "Hola, soy ACR 🚀" }
+            })
+          });
+
+          const data = await response.json();
+          console.log("RESPUESTA META:", data);
+
+        } catch (err) {
+          console.error("ERROR EN ENVÍO:", err);
+        }
       }
 
       return res.status(200).send("ok");
 
     } catch (error) {
-      console.error("ERROR:", error);
-      return res.sendStatus(500);
+      console.error("ERROR GENERAL:", error);
+      return res.status(200).send("ok"); // 👈 IMPORTANTE: ya no rompe en 500
     }
   }
 
