@@ -2,7 +2,6 @@ export default async function handler(req, res) {
 
   const VERIFY_TOKEN = "ACR123";
 
-  // 👉 VERIFICACIÓN (Meta)
   if (req.method === 'GET') {
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
@@ -15,44 +14,10 @@ export default async function handler(req, res) {
     }
   }
 
-  // 👉 MENSAJES (WhatsApp)
   if (req.method === 'POST') {
-    try {
-      console.log("MENSAJE RECIBIDO:", JSON.stringify(req.body));
-
-      const phone_number_id = req.body.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id;
-      const from = req.body.entry?.[0]?.changes?.[0]?.value?.messages?.[0]?.from;
-
-      if (from && phone_number_id) {
-        try {
-          const response = await fetch(https://graph.facebook.com/v18.0/${phone_number_id}/messages, {
-            method: "POST",
-            headers: {
-              "Authorization": Bearer ${process.env.WHATSAPP_TOKEN},
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              messaging_product: "whatsapp",
-              to: from,
-              text: { body: "Hola, soy ACR 🚀" }
-            })
-          });
-
-          const data = await response.json();
-          console.log("RESPUESTA META:", data);
-
-        } catch (err) {
-          console.error("ERROR EN ENVÍO:", err);
-        }
-      }
-
-      return res.status(200).send("ok");
-
-    } catch (error) {
-      console.error("ERROR GENERAL:", error);
-      return res.status(200).send("ok"); // 👈 IMPORTANTE: ya no rompe en 500
-    }
+    console.log("MENSAJE RECIBIDO:", JSON.stringify(req.body));
+    return res.status(200).send("ok");
   }
 
-  return res.sendStatus(405);
+  return res.status(200).send("ok");
 }
