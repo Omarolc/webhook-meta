@@ -7,19 +7,21 @@ module.exports = async function handler(req, res) {
   if (req.method === "POST") {
     try {
 
+      console.log("CUERPO COMPLETO:", JSON.stringify(req.body));
+
       const entry = req.body.entry?.[0];
       const changes = entry?.changes?.[0];
       const value = changes?.value;
-      const messages = value?.messages;
 
-      if (messages && messages.length > 0) {
-        const from = messages[0].from;
+      const phoneId = process.env.PHONE_NUMBER_ID;
+      const token = process.env.WHATSAPP_TOKEN;
 
-        const phoneId = process.env.PHONE_NUMBER_ID;
-        const token = process.env.WHATSAPP_TOKEN;
+      const url = "https://graph.facebook.com/v18.0/" + phoneId + "/messages";
 
-        const url = "https://graph.facebook.com/v18.0/" + phoneId + "/messages";
+      // 👇 RESPUESTA FORZADA (aunque no detecte mensaje)
+      const from = value?.messages?.[0]?.from;
 
+      if (from) {
         await fetch(url, {
           method: "POST",
           headers: {
@@ -32,6 +34,8 @@ module.exports = async function handler(req, res) {
             text: { body: "ACR funcionando 🚀" }
           })
         });
+      } else {
+        console.log("NO HAY MENSAJE, SOLO EVENTO");
       }
 
       return res.status(200).send("OK");
