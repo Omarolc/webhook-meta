@@ -1,14 +1,11 @@
 module.exports = async function handler(req, res) {
 
-  console.log("METODO:", req.method);
-
   if (req.method === "GET") {
     return res.status(200).send("OK");
   }
 
   if (req.method === "POST") {
     try {
-      console.log("CUERPO:", JSON.stringify(req.body));
 
       const entry = req.body.entry?.[0];
       const changes = entry?.changes?.[0];
@@ -18,12 +15,13 @@ module.exports = async function handler(req, res) {
       if (messages && messages.length > 0) {
         const from = messages[0].from;
 
-        console.log("MENSAJE DE:", from);
+        const phoneId = process.env.PHONE_NUMBER_ID;
+        const token = process.env.WHATSAPP_TOKEN;
 
-        await fetch(https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER_ID}/messages, {
+        await fetch(https://graph.facebook.com/v18.0/${phoneId}/messages, {
           method: "POST",
           headers: {
-            "Authorization": Bearer ${process.env.WHATSAPP_TOKEN},
+            "Authorization": Bearer ${token},
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
