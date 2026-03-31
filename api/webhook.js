@@ -1,5 +1,7 @@
 module.exports = async (req, res) => {
-  // 🔹 VERIFICACIÓN DE META (GET)
+  // =========================
+  // 🔹 VERIFICACIÓN (META)
+  // =========================
   if (req.method === "GET") {
     const VERIFY_TOKEN = "ACR123";
 
@@ -14,7 +16,9 @@ module.exports = async (req, res) => {
     }
   }
 
-  // 🔹 RECEPCIÓN DE MENSAJES (POST)
+  // =========================
+  // 🔹 MENSAJES ENTRANTES
+  // =========================
   if (req.method === "POST") {
     try {
       const body = req.body;
@@ -25,7 +29,6 @@ module.exports = async (req, res) => {
       const change = entry && entry.changes && entry.changes[0];
       const value = change && change.value;
 
-      // 👉 SOLO SI VIENE MENSAJE REAL
       if (value && value.messages) {
         const message = value.messages[0];
         const from = message.from;
@@ -33,14 +36,15 @@ module.exports = async (req, res) => {
 
         console.log("MENSAJE RECIBIDO:", text);
 
-        // 🔥 URL CORRECTA (sin template string fallando)
+        // =========================
+        // 🔹 ENVÍO DE RESPUESTA
+        // =========================
         const url =
           "https://graph.facebook.com/v18.0/" +
           process.env.PHONE_NUMBER_ID +
           "/messages";
 
-        // 🔹 RESPUESTA AUTOMÁTICA
-        await fetch(url, {
+        const response = await fetch(url, {
           method: "POST",
           headers: {
             Authorization: "Bearer " + process.env.WHATSAPP_TOKEN,
@@ -54,11 +58,17 @@ module.exports = async (req, res) => {
             },
           }),
         });
+
+        const data = await response.json();
+
+        console.log("RESPUESTA META:", JSON.stringify(data));
+      } else {
+        console.log("NO HAY MENSAJE, SOLO EVENTO");
       }
 
       return res.status(200).send("ok");
     } catch (error) {
-      console.error("ERROR:", error);
+      console.error("ERROR GENERAL:", error);
       return res.status(500).send("error");
     }
   }
