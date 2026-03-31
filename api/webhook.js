@@ -1,29 +1,18 @@
-console.log("🔥 VERSION NUEVA 🔥");
 module.exports = async function (req, res) {
+  console.log("🔥 VERSION NUEVA 🔥");
 
-  // 🔐 VERIFICACIÓN (GET)
   if (req.method === 'GET') {
     const VERIFY_TOKEN = "ACR123";
 
-    const mode = req.query['hub.mode'];
-    const token = req.query['hub.verify_token'];
-    const challenge = req.query['hub.challenge'];
-
-    if (mode && token === VERIFY_TOKEN) {
-      return res.status(200).send(challenge);
-    } else {
-      return res.sendStatus(403);
+    if (req.query['hub.verify_token'] === VERIFY_TOKEN) {
+      return res.status(200).send(req.query['hub.challenge']);
     }
+    return res.sendStatus(403);
   }
 
-  // 📩 RECEPCIÓN (POST)
   if (req.method === 'POST') {
     try {
-      const body = req.body;
-
-      console.log("CUERPO:", JSON.stringify(body, null, 2));
-
-      const message = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+      const message = req.body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
 
       if (message) {
         const from = message.from;
@@ -31,8 +20,7 @@ module.exports = async function (req, res) {
 
         console.log("MENSAJE:", text);
 
-        // 🚀 RESPUESTA A WHATSAPP
-        const response = await fetch(
+        await fetch(
           https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER_ID}/messages,
           {
             method: "POST",
@@ -45,23 +33,19 @@ module.exports = async function (req, res) {
               to: from,
               type: "text",
               text: {
-                body: "🔥 ACR activo: " + text,
+                body: "OK: " + text,
               },
             }),
           }
         );
-
-        const data = await response.json();
-        console.log("META:", data);
       }
 
       return res.status(200).send("EVENT_RECEIVED");
-
-    } catch (error) {
-      console.error("ERROR:", error);
+    } catch (e) {
+      console.error(e);
       return res.sendStatus(500);
     }
   }
 
-  return res.sendStatus(405);
+  res.sendStatus(405);
 };
