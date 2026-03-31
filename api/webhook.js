@@ -1,3 +1,4 @@
+console.log("🔥 VERSION NUEVA 🔥");
 module.exports = async function (req, res) {
 
   // 🔐 VERIFICACIÓN (GET)
