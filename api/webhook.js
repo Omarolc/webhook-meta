@@ -1,6 +1,5 @@
 export default async function handler(req, res) {
 
-  // VALIDACIÓN META (GET)
   if (req.method === 'GET') {
     const VERIFY_TOKEN = 'ACR123';
 
@@ -15,9 +14,38 @@ export default async function handler(req, res) {
     }
   }
 
-  // RECEPCIÓN MENSAJES
   if (req.method === 'POST') {
-    console.log('MENSAJE RECIBIDO:', JSON.stringify(req.body, null, 2));
+
+    const body = req.body;
+
+    console.log('MENSAJE RECIBIDO:', JSON.stringify(body, null, 2));
+
+    try {
+      const entry = body.entry?.[0];
+      const change = entry?.changes?.[0];
+      const value = change?.value;
+      const messages = value?.messages;
+
+      if (messages) {
+        const from = messages[0].from;
+
+        await fetch(https://graph.facebook.com/v18.0/TU_PHONE_NUMBER_ID/messages, {
+          method: 'POST',
+          headers: {
+            'Authorization': Bearer TU_TOKEN,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            to: from,
+            text: { body: "Hola, soy ACR 🤖" }
+          })
+        });
+      }
+
+    } catch (error) {
+      console.log("ERROR:", error);
+    }
 
     return res.status(200).send('EVENT_RECEIVED');
   }
