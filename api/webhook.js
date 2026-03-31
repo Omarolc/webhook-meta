@@ -1,5 +1,3 @@
-const fetch = require("node-fetch");
-
 module.exports = async function handler(req, res) {
 
   if (req.method === "GET") {
@@ -19,11 +17,6 @@ module.exports = async function handler(req, res) {
 
         const phoneId = process.env.PHONE_NUMBER_ID;
         const token = process.env.WHATSAPP_TOKEN;
-
-        if (!phoneId || !token) {
-          console.log("Faltan variables");
-          return res.status(200).send("Faltan variables");
-        }
 
         const url = "https://graph.facebook.com/v18.0/" + phoneId + "/messages";
 
