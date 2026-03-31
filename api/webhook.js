@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
         await fetch(url, {
           method: "POST",
           headers: {
-            Authorization: "Bearer " + process.env.WHATSAPP_TOKEN_,
+            Authorization: "Bearer " + process.env.WHATSAPP_TOKEN,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
