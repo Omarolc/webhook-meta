@@ -1,3 +1,5 @@
+const fetch = require("node-fetch");
+
 module.exports = async function handler(req, res) {
 
   if (req.method === "GET") {
@@ -18,6 +20,11 @@ module.exports = async function handler(req, res) {
         const phoneId = process.env.PHONE_NUMBER_ID;
         const token = process.env.WHATSAPP_TOKEN;
 
+        if (!phoneId || !token) {
+          console.log("Faltan variables");
+          return res.status(200).send("Faltan variables");
+        }
+
         const url = "https://graph.facebook.com/v18.0/" + phoneId + "/messages";
 
         await fetch(url, {
@@ -29,7 +36,7 @@ module.exports = async function handler(req, res) {
           body: JSON.stringify({
             messaging_product: "whatsapp",
             to: from,
-            text: { body: "ACR conectado 🚀" }
+            text: { body: "ACR funcionando 🚀" }
           })
         });
       }
@@ -37,7 +44,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).send("OK");
 
     } catch (error) {
-      console.error("ERROR:", error);
+      console.error("ERROR REAL:", error);
       return res.status(200).send("ERROR");
     }
   }
