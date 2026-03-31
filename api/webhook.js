@@ -29,10 +29,10 @@ export default async function handler(req, res) {
       if (messages) {
         const from = messages[0].from;
 
-        await fetch(https://graph.facebook.com/v18.0/TU_PHONE_NUMBER_ID/messages, {
+        await fetch(https://graph.facebook.com/v18.0/1075972065598074/messages, {
           method: 'POST',
           headers: {
-            'Authorization': Bearer TU_TOKEN,
+            'Authorization': Bearer EAASGMfpSvMQBRBAmERzHQ8XuyoVFKht5j8vItL7kmVNlPCYzRPRARKHc,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
