@@ -1,4 +1,5 @@
-export default async function handler(req, res) {
+module.exports = async function (req, res) {
+
   if (req.method === 'GET') {
     const VERIFY_TOKEN = "ACR123";
 
@@ -28,36 +29,8 @@ export default async function handler(req, res) {
 
         console.log("MENSAJE RECIBIDO:", text);
 
-        // 🔥 RESPUESTA AUTOMÁTICA
         const response = await fetch(
           https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER_ID}/messages,
           {
             method: "POST",
             headers: {
-              "Authorization": Bearer ${process.env.WHATSAPP_TOKEN},
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              messaging_product: "whatsapp",
-              to: from,
-              type: "text",
-              text: {
-                body: "🔥 ACR activo: " + text,
-              },
-            }),
-          }
-        );
-
-        const data = await response.json();
-        console.log("RESPUESTA META:", data);
-      }
-
-      return res.status(200).send("EVENT_RECEIVED");
-    } catch (error) {
-      console.error("ERROR:", error);
-      return res.sendStatus(500);
-    }
-  }
-
-  return res.sendStatus(405);
-}
