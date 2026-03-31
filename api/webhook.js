@@ -1,6 +1,6 @@
 module.exports = async function (req, res) {
 
-  // 🔐 VERIFICACIÓN WEBHOOK (GET)
+  // 🔐 VERIFICACIÓN (GET)
   if (req.method === 'GET') {
     const VERIFY_TOKEN = "ACR123";
 
@@ -15,7 +15,7 @@ module.exports = async function (req, res) {
     }
   }
 
-  // 📩 RECEPCIÓN DE MENSAJES (POST)
+  // 📩 RECEPCIÓN (POST)
   if (req.method === 'POST') {
     try {
       const body = req.body;
@@ -30,7 +30,7 @@ module.exports = async function (req, res) {
 
         console.log("MENSAJE:", text);
 
-        // 🚀 ENVÍO DE RESPUESTA
+        // 🚀 RESPUESTA A WHATSAPP
         const response = await fetch(
           https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER_ID}/messages,
           {
