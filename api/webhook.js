@@ -25,6 +25,7 @@ module.exports = async function (req, res) {
           {
             method: "POST",
             headers: {
+              //deploy
               "Authorization": Bearer ${process.env.WHATSAPP_TOKEN},
               "Content-Type": "application/json",
             },
