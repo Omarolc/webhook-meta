@@ -1,50 +1,47 @@
-module.exports = async function handler(req, res) {
-
-  if (req.method === "GET") {
-    return res.status(200).send("OK");
-  }
-
+export default async function handler(req, res) {
   if (req.method === "POST") {
     try {
+      const body = req.body;
 
-      console.log("CUERPO COMPLETO:", JSON.stringify(req.body));
+      console.log("CUERPO COMPLETO:", JSON.stringify(body));
 
-      const entry = req.body.entry?.[0];
-      const changes = entry?.changes?.[0];
-      const value = changes?.value;
+      const entry = body.entry?.[0];
+      const change = entry?.changes?.[0];
+      const value = change?.value;
 
-      const phoneId = process.env.PHONE_NUMBER_ID;
-      const token = process.env.WHATSAPP_TOKEN;
+      if (value?.messages) {
+        const message = value.messages[0];
+        const from = message.from;
+        const text = message.text?.body;
 
-      const url = "https://graph.facebook.com/v18.0/" + phoneId + "/messages";
+        console.log("MENSAJE RECIBIDO:", text);
 
-      // 👇 RESPUESTA FORZADA (aunque no detecte mensaje)
-      const from = value?.messages?.[0]?.from;
-
-      if (from) {
-        await fetch(url, {
-          method: "POST",
-          headers: {
-            "Authorization": "Bearer " + token,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            messaging_product: "whatsapp",
-            to: from,
-            text: { body: "ACR funcionando 🚀" }
-          })
-        });
-      } else {
-        console.log("NO HAY MENSAJE, SOLO EVENTO");
+        // RESPUESTA AUTOMÁTICA
+        await fetch(
+          https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER_ID}/messages,
+          {
+            method: "POST",
+            headers: {
+              Authorization: Bearer ${process.env.WHATSAPP_TOKEN},
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              messaging_product: "whatsapp",
+              to: from,
+              text: {
+                body: Recibí tu mensaje: ${text},
+              },
+            }),
+          }
+        );
       }
 
-      return res.status(200).send("OK");
-
+      return res.status(200).send("ok");
     } catch (error) {
-      console.error("ERROR REAL:", error);
-      return res.status(200).send("ERROR");
+      console.error(error);
+      return res.status(500).send("error");
     }
   }
 
-  return res.status(200).send("OK");
+  return res.status(200).send("ok");
 }
