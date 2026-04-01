@@ -1,6 +1,7 @@
-export default async function handler(req, res) {
+export default function handler(req, res) {
   const VERIFY_TOKEN = "ACR123";
 
+  // 🔹 VERIFICACIÓN (GET)
   if (req.method === "GET") {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
@@ -14,10 +15,11 @@ export default async function handler(req, res) {
     }
   }
 
+  // 🔹 RECEPCIÓN DE MENSAJES (POST)
   if (req.method === "POST") {
     console.log("MENSAJE RECIBIDO:", JSON.stringify(req.body, null, 2));
-    return res.status(200).send("EVENT_RECEIVED");
+    return res.sendStatus(200);
   }
 
-  return res.sendStatus(404);
+  return res.sendStatus(405);
 }
