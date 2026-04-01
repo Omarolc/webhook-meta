@@ -1,7 +1,7 @@
-export default async function handler(req, res) {
+module.exports = async function (req, res) {
   const VERIFY_TOKEN = "ACR123";
 
-  // 🔹 VERIFICACIÓN DE META
+  // 🔹 VERIFICACIÓN
   if (req.method === "GET") {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
@@ -10,11 +10,11 @@ export default async function handler(req, res) {
     if (mode && token === VERIFY_TOKEN) {
       return res.status(200).send(challenge);
     } else {
-      return res.status(403).send("Error de verificación");
+      return res.status(403).send("Error");
     }
   }
 
-  // 🔹 RECIBIR MENSAJES
+  // 🔹 MENSAJES
   if (req.method === "POST") {
     try {
       const body = req.body;
@@ -27,7 +27,6 @@ export default async function handler(req, res) {
       if (message) {
         const from = message.from;
 
-        // 🔥 RESPUESTA AUTOMÁTICA
         await fetch(
           https://graph.facebook.com/v18.0/${process.env.NUMERO_DE_TELEFONO_ID}/messages,
           {
@@ -48,10 +47,10 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
 
     } catch (error) {
-      console.error("ERROR:", error);
+      console.error(error);
       return res.status(500).json({ error: error.message });
     }
   }
 
   return res.status(405).send("Método no permitido");
-}
+};
