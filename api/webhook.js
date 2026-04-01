@@ -1,14 +1,6 @@
 module.exports = async function (req, res) {
   const VERIFY_TOKEN = "ACR123";
 
-  // ===== VALIDACIÓN VARIABLES =====
-  if (!process.env.WHATSAPP_TOKEN || !process.env.PHONE_NUMBER_ID) {
-    console.error("❌ FALTAN VARIABLES DE ENTORNO");
-    return res.status(500).json({
-      error: "Faltan variables de entorno",
-    });
-  }
-
   // ===== VERIFICACIÓN META =====
   if (req.method === "GET") {
     const mode = req.query["hub.mode"];
@@ -25,6 +17,12 @@ module.exports = async function (req, res) {
   // ===== MENSAJES =====
   if (req.method === "POST") {
     try {
+      // 🔥 VALIDACIÓN DE VARIABLES (AQUÍ ESTABA TU ERROR)
+      if (!process.env.WHATSAPP_TOKEN || !process.env.PHONE_NUMBER_ID) {
+        console.error("❌ FALTAN VARIABLES DE ENTORNO");
+        return res.status(500).json({ error: "Faltan variables de entorno" });
+      }
+
       const body = req.body;
 
       console.log("EVENTO:", JSON.stringify(body));
