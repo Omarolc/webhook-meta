@@ -1,7 +1,7 @@
 module.exports = (req, res) => {
   const VERIFY_TOKEN = "ACR123";
 
-  // 🔹 GET (verificación de Meta)
+  // 🔹 VERIFICACIÓN (GET)
   if (req.method === "GET") {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
@@ -11,15 +11,15 @@ module.exports = (req, res) => {
       console.log("WEBHOOK VERIFICADO");
       return res.status(200).send(challenge);
     } else {
-      return res.sendStatus(403);
+      return res.status(403).end();
     }
   }
 
-  // 🔹 POST (mensajes)
+  // 🔹 MENSAJES (POST)
   if (req.method === "POST") {
     console.log("MENSAJE RECIBIDO:", req.body);
-    return res.sendStatus(200);
+    return res.status(200).end();
   }
 
-  return res.sendStatus(405);
+  return res.status(405).end();
 };
