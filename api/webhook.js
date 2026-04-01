@@ -1,7 +1,7 @@
 module.exports = async (req, res) => {
   const VERIFY_TOKEN = "ACR123";
 
-  // ===== VERIFICACIÓN =====
+  // ===== VERIFICACIÓN META =====
   if (req.method === "GET") {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
@@ -10,23 +10,23 @@ module.exports = async (req, res) => {
     if (mode === "subscribe" && token === VERIFY_TOKEN) {
       return res.status(200).send(challenge);
     } else {
-      return res.status(403).send("Error");
+      return res.status(403).send("Error de verificación");
     }
   }
 
-  // ===== MENSAJES =====
+  // ===== RECEPCIÓN DE MENSAJES =====
   if (req.method === "POST") {
     try {
       const body = req.body;
 
-      console.log("RECIBIDO:", JSON.stringify(body));
+      console.log("EVENTO:", JSON.stringify(body));
 
-      const message = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+      const message =
+        body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
 
       if (message) {
         const from = message.from;
 
-        // 🔥 ESTA LÍNEA ES LA CLAVE (backticks correctos)
         const url = https://graph.facebook.com/v18.0/${process.env.NUMERO_DE_TELEFONO_ID}/messages;
 
         await fetch(url, {
