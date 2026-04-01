@@ -1,7 +1,7 @@
-export default function handler(req, res) {
+module.exports = (req, res) => {
   const VERIFY_TOKEN = "ACR123";
 
-  // 🔹 VERIFICACIÓN (GET)
+  // 🔹 GET (verificación de Meta)
   if (req.method === "GET") {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
@@ -15,11 +15,11 @@ export default function handler(req, res) {
     }
   }
 
-  // 🔹 RECEPCIÓN DE MENSAJES (POST)
+  // 🔹 POST (mensajes)
   if (req.method === "POST") {
-    console.log("MENSAJE RECIBIDO:", JSON.stringify(req.body, null, 2));
+    console.log("MENSAJE RECIBIDO:", req.body);
     return res.sendStatus(200);
   }
 
   return res.sendStatus(405);
-}
+};
