@@ -1,7 +1,7 @@
-module.exports = async (req, res) => {
+module.exports = async function handler(req, res) {
   const VERIFY_TOKEN = "ACR123";
 
-  // ===== VERIFICACIÓN META =====
+  // ===== VERIFICACIÓN =====
   if (req.method === "GET") {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
@@ -10,11 +10,11 @@ module.exports = async (req, res) => {
     if (mode === "subscribe" && token === VERIFY_TOKEN) {
       return res.status(200).send(challenge);
     } else {
-      return res.status(403).send("Error de verificación");
+      return res.status(403).send("Error");
     }
   }
 
-  // ===== RECEPCIÓN DE MENSAJES =====
+  // ===== MENSAJES =====
   if (req.method === "POST") {
     try {
       const body = req.body;
@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
 
         const url = https://graph.facebook.com/v18.0/${process.env.NUMERO_DE_TELEFONO_ID}/messages;
 
-        await fetch(url, {
+        const response = await fetch(url, {
           method: "POST",
           headers: {
             Authorization: Bearer ${process.env.TOKEN_DE_WHATSAPP},
@@ -43,6 +43,9 @@ module.exports = async (req, res) => {
             },
           }),
         });
+
+        const data = await response.json();
+        console.log("RESPUESTA META:", data);
       }
 
       return res.status(200).json({ ok: true });
