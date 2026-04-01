@@ -1,6 +1,7 @@
 export default async function handler(req, res) {
   const VERIFY_TOKEN = "ACR123";
 
+  // VERIFICACIÓN
   if (req.method === "GET") {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
@@ -13,11 +14,12 @@ export default async function handler(req, res) {
     }
   }
 
+  // MENSAJES
   if (req.method === "POST") {
     try {
       const body = req.body;
 
-      console.log("MENSAJE:", JSON.stringify(body));
+      console.log("RECIBIDO:", JSON.stringify(body));
 
       const message = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
 
@@ -43,9 +45,11 @@ export default async function handler(req, res) {
 
       return res.status(200).json({ ok: true });
 
-    } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: e.message });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: error.message });
     }
   }
+
+  return res.status(405).send("Método no permitido");
 }
