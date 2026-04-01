@@ -1,4 +1,4 @@
-const axios = require("axios");
+0   const axios = require("axios");
 
 module.exports = async (req, res) => {
   const VERIFY_TOKEN = "ACR123";
@@ -16,33 +16,40 @@ module.exports = async (req, res) => {
   }
 
   if (req.method === "POST") {
-    const entry = req.body.entry?.[0];
-    const changes = entry?.changes?.[0];
-    const message = changes?.value?.messages?.[0];
+    try {
+      const entry = req.body.entry?.[0];
+      const changes = entry?.changes?.[0];
+      const message = changes?.value?.messages?.[0];
 
-    if (message) {
-      const from = message.from;
-      const text = message.text?.body;
+      if (message) {
+        const from = message.from;
+        const text = message.text?.body;
 
-      console.log("Mensaje:", text);
+        console.log("Mensaje:", text);
 
-      // RESPUESTA AUTOMÁTICA
-      await axios.post(
-        https://graph.facebook.com/v18.0/1075972065598074/messages,
-        {
-          messaging_product: "whatsapp",
-          to: from,
-          text: { body: "Recibí tu mensaje: " + text }
-        },
-        {
+        await axios({
+          method: "POST",
+          url: "https://graph.facebook.com/v18.0/1075972065598074/messages",
           headers: {
-            Authorization: Bearer TU_TOKEN,
-            "Content-Type": "application/json"
-          }
-        }
-      );
-    }
+            Authorization: "Bearer TU_TOKEN_REAL",
+            "Content-Type": "application/json",
+          },
+          data: {
+            messaging_product: "whatsapp",
+            to: from,
+            text: {
+              body: "Recibí: " + text,
+            },
+          },
+        });
+      }
 
-    return res.status(200).end();
+      return res.status(200).end();
+    } catch (error) {
+      console.error("ERROR:", error.response?.data || error.message);
+      return res.status(200).end();
+    }
   }
+
+  return res.status(405).end();
 };
