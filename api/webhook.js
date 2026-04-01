@@ -1,7 +1,7 @@
 module.exports = async (req, res) => {
   const VERIFY_TOKEN = "ACR123";
 
-  // ===== VERIFICACIÓN META =====
+  // ===== VERIFICACIÓN =====
   if (req.method === "GET") {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
@@ -26,10 +26,9 @@ module.exports = async (req, res) => {
       if (message) {
         const from = message.from;
 
-        // 🔥 URL CORRECTA (backticks bien)
+        // 🔥 ESTA LÍNEA ES LA CLAVE (backticks correctos)
         const url = https://graph.facebook.com/v18.0/${process.env.NUMERO_DE_TELEFONO_ID}/messages;
 
-        // 🔥 REQUEST CORRECTO
         await fetch(url, {
           method: "POST",
           headers: {
