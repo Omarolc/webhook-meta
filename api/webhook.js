@@ -1,7 +1,7 @@
 module.exports = async function (req, res) {
   const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "ACR123";
 
-  // ===== VERIFICACIÓN =====
+  // ===== VERIFICACIÓN META =====
   if (req.method === "GET") {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
@@ -10,7 +10,7 @@ module.exports = async function (req, res) {
     if (mode === "subscribe" && token === VERIFY_TOKEN) {
       return res.status(200).send(challenge);
     } else {
-      return res.status(403).send("Error");
+      return res.status(403).send("Error de verificación");
     }
   }
 
@@ -21,13 +21,15 @@ module.exports = async function (req, res) {
       const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 
       if (!WHATSAPP_TOKEN || !PHONE_NUMBER_ID) {
-        console.error("FALTAN VARIABLES");
+        console.error("❌ FALTAN VARIABLES DE ENTORNO");
         return res.status(500).json({ error: "ENV faltante" });
       }
 
       const body = req.body;
 
-      // RESPONDER RÁPIDO A META
+      console.log("📩 EVENTO:", JSON.stringify(body));
+
+      // RESPONDER RÁPIDO A META (CLAVE)
       res.status(200).json({ received: true });
 
       const entry = body.entry?.[0];
@@ -36,14 +38,17 @@ module.exports = async function (req, res) {
 
       if (!message) return;
 
+      // SOLO TEXTO
       if (message.type !== "text") return;
 
       const from = message.from;
       const text = message.text?.body || "";
 
+      // 🔥 URL CORRECTA (BACKTICKS)
       const url = https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages;
 
-      await fetch(url, {
+      // 🔥 ENVÍO A WHATSAPP
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           Authorization: Bearer ${WHATSAPP_TOKEN},
@@ -53,18 +58,21 @@ module.exports = async function (req, res) {
           messaging_product: "whatsapp",
           to: from,
           text: {
-            body: OK: ${text},
+            body: Recibí: ${text},
           },
         }),
       });
 
+      const data = await response.json();
+      console.log("✅ RESPUESTA META:", data);
+
     } catch (error) {
-      console.error("ERROR:", error);
+      console.error("❌ ERROR:", error);
       return res.status(500).json({ error: error.message });
     }
 
     return;
   }
 
-  return res.status(405).send("No permitido");
+  return res.status(405).send("Método no permitido");
 };
