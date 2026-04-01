@@ -1,5 +1,5 @@
 module.exports = async function (req, res) {
-  const VERIFY_TOKEN = "ACR123";
+  const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "ACR123";
 
   // ===== VERIFICACIÓN META =====
   if (req.method === "GET") {
@@ -14,52 +14,72 @@ module.exports = async function (req, res) {
     }
   }
 
-  // ===== MENSAJES =====
+  // ===== WEBHOOK EVENT =====
   if (req.method === "POST") {
     try {
-      // 🔥 VALIDACIÓN DE VARIABLES (AQUÍ ESTABA TU ERROR)
-      if (!process.env.WHATSAPP_TOKEN || !process.env.PHONE_NUMBER_ID) {
+      // VALIDACIÓN VARIABLES
+      const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+      const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
+
+      if (!WHATSAPP_TOKEN || !PHONE_NUMBER_ID) {
         console.error("❌ FALTAN VARIABLES DE ENTORNO");
-        return res.status(500).json({ error: "Faltan variables de entorno" });
+        return res.status(500).json({ error: "ENV no configurado" });
       }
 
       const body = req.body;
 
-      console.log("EVENTO:", JSON.stringify(body));
+      // RESPONDER RÁPIDO A META (EVITA REINTENTOS)
+      res.status(200).json({ received: true });
 
-      const message =
-        body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+      // PROCESAR ASÍNCRONO
+      setImmediate(async () => {
+        try {
+          const changes = body.entry?.[0]?.changes || [];
 
-      if (message) {
-        const from = message.from;
+          for (const change of changes) {
+            const messages = change.value?.messages || [];
 
-        const url = https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER_ID}/messages;
+            for (const msg of messages) {
+              // SOLO TEXTO
+              if (msg.type !== "text") continue;
 
-        const response = await fetch(url, {
-          method: "POST",
-          headers: {
-            Authorization: Bearer ${process.env.WHATSAPP_TOKEN},
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            messaging_product: "whatsapp",
-            to: from,
-            text: {
-              body: "Ya quedó 🔥",
-            },
-          }),
-        });
+              const from = msg.from;
+              const text = msg.text?.body;
 
-        const data = await response.json();
-        console.log("RESPUESTA META:", data);
-      }
+              console.log("MENSAJE:", from, text);
 
-      return res.status(200).json({ ok: true });
+              const url = https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages;
+
+              const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                  Authorization: Bearer ${WHATSAPP_TOKEN},
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  messaging_product: "whatsapp",
+                  to: from,
+                  text: {
+                    body: Recibido: ${text},
+                  },
+                }),
+              });
+
+              const data = await response.json();
+              console.log("RESPUESTA META:", data);
+            }
+          }
+        } catch (err) {
+          console.error("❌ ERROR ASYNC:", err);
+        }
+      });
 
     } catch (error) {
       console.error("❌ ERROR:", error);
       return res.status(500).json({ error: error.message });
     }
+
+    return;
   }
 
   return res.status(405).send("Método no permitido");
