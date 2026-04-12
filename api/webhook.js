@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     const body = req.body;
 
-    console.log("Mensaje recibido:", body);
+    console.log("Mensaje recibido:", JSON.stringify(body));
 
     const message =
       body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
@@ -28,13 +28,13 @@ export default async function handler(req, res) {
       console.log("De:", from);
       console.log("Texto:", text);
 
-      // 👉 AQUÍ RESPONDES
+      // 👉 RESPUESTA AUTOMÁTICA
       await fetch(
-        https://graph.facebook.com/v18.0/TU_PHONE_NUMBER_ID/messages,
+        "https://graph.facebook.com/v18.0/1079067715291742/messages",
         {
           method: "POST",
           headers: {
-            Authorization: Bearer TU_TOKEN,
+            Authorization: Bearer TU_ACCESS_TOKEN_REAL,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
