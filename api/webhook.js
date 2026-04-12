@@ -1,4 +1,4 @@
-export default function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method === "GET") {
     const VERIFY_TOKEN = "ACR123";
 
@@ -14,8 +14,39 @@ export default function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    console.log("Mensaje recibido:", req.body);
-    return res.status(200).send("OK");
+    const body = req.body;
+
+    console.log("Mensaje recibido:", body);
+
+    const message =
+      body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+
+    if (message) {
+      const from = message.from;
+      const text = message.text?.body;
+
+      console.log("De:", from);
+      console.log("Texto:", text);
+
+      // 👉 AQUÍ RESPONDES
+      await fetch(
+        https://graph.facebook.com/v18.0/TU_PHONE_NUMBER_ID/messages,
+        {
+          method: "POST",
+          headers: {
+            Authorization: Bearer TU_TOKEN,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            to: from,
+            text: { body: "Hola, recibí tu mensaje 👌" },
+          }),
+        }
+      );
+    }
+
+    return res.status(200).send("EVENT_RECEIVED");
   }
 
   return res.status(405).send("Método no permitido");
